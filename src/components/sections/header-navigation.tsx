@@ -1,12 +1,14 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { MobileNavOverlay, MobileNavTrigger } from "@/components/mobile-nav";
 import { useMobileNav } from "@/hooks/useMobileNav";
 import { useSession } from "@/lib/auth-client";
 import { UserMenu } from "@/components/auth/UserMenu";
-import { User } from "lucide-react";
+import { SearchFilterModal, type FilterState } from "@/components/shared/SearchFilterModal";
+import { useFilterState } from "@/hooks/useFilterState";
 
 const MagicIcon = (props: React.SVGProps<SVGSVGElement>) =>
 <svg
@@ -47,6 +49,35 @@ interface HeaderNavigationProps {
 const HeaderNavigation = ({ onSubscribeClick, onSubmitClick }: HeaderNavigationProps) => {
   const mobileNav = useMobileNav();
   const { data: session, isPending } = useSession();
+  const pathname = usePathname();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const { updateFilters, currentFilters } = useFilterState();
+
+  // Determine content type based on current route
+  const getContentType = (): "apps" | "workflows" | "shortcuts" | "mcps" | "creators" => {
+    if (pathname.startsWith("/apps")) return "apps";
+    if (pathname.startsWith("/workflows")) return "workflows";
+    if (pathname.startsWith("/shortcuts")) return "shortcuts";
+    if (pathname.startsWith("/mcps")) return "mcps";
+    if (pathname.startsWith("/creators")) return "creators";
+    return "apps"; // default
+  };
+
+  const handleApplyFilters = (filters: FilterState) => {
+    updateFilters(filters);
+  };
+
+  // Handle keyboard shortcut ⌘K
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <>
@@ -63,12 +94,14 @@ const HeaderNavigation = ({ onSubscribeClick, onSubmitClick }: HeaderNavigationP
           <div className="hidden w-full lg:block">
             <div className="relative mr-auto w-full group lg:absolute lg:top-1/2 lg:left-1/2 lg:ml-6 lg:max-w-[480px] lg:-translate-x-1/2 lg:-translate-y-1/2 z-50">
               <button
-                data-state="closed"
-                className="flex w-full flex-row items-center rounded-full bg-gray-100 px-3 py-[6px]">
+                onClick={() => setSearchOpen(true)}
+                className="flex w-full flex-row items-center rounded-full bg-gray-100 px-3 py-[6px] hover:bg-gray-200 transition-colors">
 
                 <SearchIcon />
                 <p className="ml-3 w-full-break-normal whitespace-nowrap text-left text-sm text-gray-400">
-                  Search for websites, fonts, categories...
+                  {currentFilters.search 
+                    ? `Searching "${currentFilters.search}"`
+                    : "Search for apps, workflows, shortcuts..."}
                 </p>
                 <p className="ml-auto rounded-sm px-[5px] py-[2px] text-[10px] text-gray-400">
                   ⌘{` `}K
@@ -108,6 +141,14 @@ const HeaderNavigation = ({ onSubscribeClick, onSubmitClick }: HeaderNavigationP
         onSubscribeClick={onSubscribeClick}
         onSubmitClick={onSubmitClick} />
 
+      {/* Search/Filter Modal */}
+      <SearchFilterModal
+        isOpen={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        contentType={getContentType()}
+        currentFilters={currentFilters}
+        onApplyFilters={handleApplyFilters}
+      />
     </>);
 
 };

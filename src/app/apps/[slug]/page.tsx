@@ -1,48 +1,44 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { getAppBySlug, sampleApps, getRelatedApps } from "@/lib/data/app-schema";
-import { AppDetailClient } from "./AppDetailClient";
+import { getAppBySlug, getRelatedApps } from "@/lib/db/queries";
+import { AppDetailContent } from "./AppDetailContent";
 
 interface AppPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateStaticParams() {
-  return sampleApps.map((app) => ({
-    slug: app.slug,
-  }));
-}
-
-export async function generateMetadata({ params }: AppPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: AppPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const app = getAppBySlug(slug);
+  const app = await getAppBySlug(slug);
 
   if (!app) {
     return {
-      title: "App Not Found",
+      title: "App Not Found - Native AI",
     };
   }
 
   return {
-    title: `${app.name} - ${app.tagline}`,
+    title: `${app.name} - ${app.developer} | Native AI`,
     description: app.description,
     openGraph: {
       title: app.name,
-      description: app.tagline,
-      images: [app.media.heroImage],
+      description: app.description,
+      images: [app.iconUrl],
     },
   };
 }
 
 export default async function AppPage({ params }: AppPageProps) {
   const { slug } = await params;
-  const app = getAppBySlug(slug);
+  const app = await getAppBySlug(slug);
 
   if (!app) {
     notFound();
   }
 
-  const relatedApps = getRelatedApps(app);
+  const relatedApps = await getRelatedApps(app.id, 4);
 
-  return <AppDetailClient app={app} relatedApps={relatedApps} />;
+  return <AppDetailContent app={app} relatedApps={relatedApps} />;
 }
