@@ -22,11 +22,9 @@ export function RelatedApps({ apps, currentAppId }: RelatedAppsProps) {
     <div className="mt-16 pt-8">
       <h2 className="text-2xl font-semibold text-gray-900 mb-8">Related Apps</h2>
       
-      {/* Grid: 3 equal columns on desktop, 2 on tablet, 1 on mobile - full width like home page */}
+      {/* Grid: 3 equal columns on desktop, 2 on tablet, 1 on mobile - matching home page */}
       <div 
-        className="grid grid-cols-1 gap-5 w-full
-                   md:grid-cols-2 md:gap-6
-                   lg:grid-cols-3 lg:gap-8"
+        className="w-full grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
       >
         {relatedApps.map((app) => (
           <RelatedAppCard key={app.id} app={app} />
@@ -79,12 +77,12 @@ function RelatedAppCard({ app }: { app: AppData }) {
     <Link
       ref={containerRef}
       href={`/apps/${app.slug}`}
-      className="group block w-full min-w-0 bg-white border border-gray-200 rounded-2xl overflow-hidden transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-0.5"
+      className="group block p-3 transition-all rounded-xl cursor-pointer hover:bg-gray-50 ease-in-out"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Thumbnail - 280px height, full width, responsive */}
-      <div className="relative overflow-hidden rounded-t-2xl select-none h-[280px] w-full bg-gray-100">
+      {/* Thumbnail - aspect-video like home page cards */}
+      <div className="relative overflow-hidden rounded-lg border border-gray-200 select-none aspect-video bg-gray-100 mb-3">
         <div
           role="overlay"
           className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-all ease-in-out z-20"
@@ -122,40 +120,14 @@ function RelatedAppCard({ app }: { app: AppData }) {
         )}
       </div>
 
-      {/* Content area with overlapping icon */}
-      <div className="relative px-6 pb-6 pt-10">
-        {/* Overlapping app icon */}
-        <div className="absolute -top-8 left-6 w-16 h-16 rounded-[14px] overflow-hidden bg-white border-4 border-white shadow-md">
-          <Image
-            src={app.media.icon}
-            alt={`${app.name} icon`}
-            width={64}
-            height={64}
-            className="w-full h-full object-cover"
-          />
-        </div>
-
-        {/* App info */}
-        <h3 className="text-xl font-semibold text-gray-900 mb-2 leading-tight group-hover:text-gray-700 transition-colors">
+      {/* Content area - simple text like home page cards */}
+      <div className="space-y-1">
+        <h3 className="text-sm font-medium text-gray-900 truncate group-hover:text-gray-700 transition-colors">
           {app.name}
         </h3>
-        <p className="text-[15px] text-gray-500 leading-relaxed line-clamp-2 mb-4">
+        <p className="text-xs text-gray-500 truncate">
           {app.tagline}
         </p>
-
-        {/* Platform badges */}
-        {app.platforms && app.platforms.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {app.platforms.map((platform) => (
-              <span
-                key={platform}
-                className="text-[13px] bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg"
-              >
-                {platform}
-              </span>
-            ))}
-          </div>
-        )}
       </div>
     </Link>
   );
