@@ -24,6 +24,7 @@ export function AppDetailClient({ app, relatedApps }: AppDetailClientProps) {
       />
 
       <main className="pt-[67px]">
+        {/* App detail content - constrained width */}
         <div className="container mx-auto px-4 md:px-8 py-6 md:py-8 max-w-4xl">
           {/* Hero Section */}
           <AppHero app={app} />
@@ -42,8 +43,10 @@ export function AppDetailClient({ app, relatedApps }: AppDetailClientProps) {
               <AppInfo app={app} />
             </div>
           </div>
+        </div>
 
-          {/* Related Apps */}
+        {/* Related Apps - full width like home page */}
+        <div className="px-3 sm:px-5 pb-8">
           <RelatedApps apps={relatedApps} currentAppId={app.id} />
         </div>
       </main>

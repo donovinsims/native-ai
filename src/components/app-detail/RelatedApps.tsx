@@ -22,9 +22,9 @@ export function RelatedApps({ apps, currentAppId }: RelatedAppsProps) {
     <div className="mt-16 pt-8">
       <h2 className="text-2xl font-semibold text-gray-900 mb-8">Related Apps</h2>
       
-      {/* Grid: 3 equal columns on desktop, 2 on tablet, 1 on mobile */}
+      {/* Grid: 3 equal columns on desktop, 2 on tablet, 1 on mobile - full width like home page */}
       <div 
-        className="grid grid-cols-1 gap-5 w-full max-w-[1200px] mx-auto px-5
+        className="grid grid-cols-1 gap-5 w-full
                    md:grid-cols-2 md:gap-6
                    lg:grid-cols-3 lg:gap-8"
       >
