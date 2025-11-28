@@ -80,7 +80,7 @@ const HeaderNavigation = ({ onSubscribeClick, onSubmitClick }: HeaderNavigationP
             {!isPending && !session?.user &&
             <Link
               href="/login"
-              className="hidden md:flex items-center justify-center min-h-[32px] bg-[#fafafa] text-black rounded-xl font-medium border border-[#d1d1d1] hover:bg-gray-50 transition-colors px-3 py-[6px] text-sm w-[97px]">
+              className="hidden md:flex items-center justify-center select-none rounded-lg border border-[#d1d1d1] bg-[#fafafa] px-3 py-[6px] text-black transition-all duration-200 hover:scale-101 hover:bg-gray-50 active:scale-99 w-[97px] text-sm">
 
                 Sign In
               </Link>

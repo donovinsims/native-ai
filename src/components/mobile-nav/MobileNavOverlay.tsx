@@ -146,23 +146,33 @@ export function MobileNavOverlay({
             </div>
 
             {/* Action buttons */}
-            <div className="flex gap-3 mb-4">
+            <div className="flex flex-col gap-3 mb-4">
               <button
                 onClick={handleSubmitClick}
-                className="flex-1 min-h-[44px] px-4 py-3 rounded-lg border border-gray-300 text-base font-medium text-gray-900 bg-white hover:bg-gray-50 transition-colors"
+                className="w-full min-h-[44px] px-4 py-3 rounded-lg border border-gray-300 text-base font-medium text-gray-900 bg-white hover:bg-gray-50 transition-colors"
               >
                 Submit
               </button>
-              <button
-                onClick={handleSubscribeClick}
-                className="flex-1 min-h-[44px] px-4 py-3 rounded-lg border border-gray-900 text-base font-medium text-white bg-gray-900 hover:bg-gray-800 transition-colors"
-              >
-                Subscribe
-              </button>
+              {!isPending && !session?.user && (
+                <Link
+                  href="/login"
+                  onClick={onClose}
+                  className="flex items-center justify-center w-full min-h-[44px] px-4 py-3 rounded-lg border border-gray-300 text-base font-medium text-gray-900 bg-white hover:bg-gray-50 transition-colors"
+                >
+                  Sign in
+                </Link>
+              )}
             </div>
 
             {/* Auth Section */}
-            <div className="mb-4 pb-4 border-b border-gray-100">
+            <div className="mb-4 pb-4 border-b border-gray-100 space-y-3">
+              <button
+                onClick={handleSubscribeClick}
+                className="w-full min-h-[44px] px-4 py-3 rounded-lg text-base font-medium text-white bg-[#ff6719] hover:bg-[#e55a15] transition-colors"
+              >
+                Subscribe
+              </button>
+
               {isPending ? (
                 <div className="flex items-center justify-center py-3">
                   <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
@@ -188,16 +198,7 @@ export function MobileNavOverlay({
                     {session.user.email}
                   </p>
                 </div>
-              ) : (
-                <Link
-                  href="/login"
-                  onClick={onClose}
-                  className="flex items-center gap-3 min-h-[44px] px-4 py-3 rounded-lg text-base font-medium text-white bg-gray-900 hover:bg-gray-800 transition-colors"
-                >
-                  <User className="w-5 h-5" />
-                  <span>Sign in</span>
-                </Link>
-              )}
+              ) : null}
             </div>
 
             {/* Category list */}
