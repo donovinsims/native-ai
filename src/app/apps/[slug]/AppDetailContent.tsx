@@ -307,14 +307,14 @@ export function AppDetailContent({ app, relatedApps }: AppDetailContentProps) {
                       <Calendar className="h-4 w-4" />
                       Added
                     </dt>
-                    <dd className="font-medium">{formatDate(app.createdAt)}</dd>
+                    <dd className="font-medium" suppressHydrationWarning>{formatDate(app.createdAt)}</dd>
                   </div>
                   <div>
                     <dt className="text-sm text-muted-foreground flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
                       Last Updated
                     </dt>
-                    <dd className="font-medium">{formatDate(app.updatedAt)}</dd>
+                    <dd className="font-medium" suppressHydrationWarning>{formatDate(app.updatedAt)}</dd>
                   </div>
                 </dl>
               </Card>
