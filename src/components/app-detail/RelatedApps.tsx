@@ -22,9 +22,11 @@ export function RelatedApps({ apps, currentAppId }: RelatedAppsProps) {
     <div className="mt-16 pt-8">
       <h2 className="text-2xl font-semibold text-gray-900 mb-8">Related Apps</h2>
       
-      {/* Grid: 3 cols desktop (>1200px), 2 tablet, 1 mobile - with wider max-width and generous gaps */}
+      {/* Grid: 3 equal columns on desktop, 2 on tablet, 1 on mobile */}
       <div 
-        className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8 xl:gap-10 w-full max-w-[1360px] mx-auto"
+        className="grid grid-cols-1 gap-5 w-full max-w-[1200px] mx-auto px-5
+                   md:grid-cols-2 md:gap-6
+                   lg:grid-cols-3 lg:gap-8"
       >
         {relatedApps.map((app) => (
           <RelatedAppCard key={app.id} app={app} />
@@ -77,12 +79,12 @@ function RelatedAppCard({ app }: { app: AppData }) {
     <Link
       ref={containerRef}
       href={`/apps/${app.slug}`}
-      className="group block bg-white border border-gray-200 rounded-2xl overflow-hidden transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-0.5"
+      className="group block w-full min-w-0 bg-white border border-gray-200 rounded-2xl overflow-hidden transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-0.5"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Tall thumbnail - 350px desktop, 300px tablet, 280px mobile */}
-      <div className="relative overflow-hidden rounded-t-2xl select-none h-[280px] md:h-[300px] xl:h-[350px] bg-gray-100">
+      {/* Thumbnail - 280px height, full width, responsive */}
+      <div className="relative overflow-hidden rounded-t-2xl select-none h-[280px] w-full bg-gray-100">
         <div
           role="overlay"
           className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-all ease-in-out z-20"
