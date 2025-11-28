@@ -133,7 +133,7 @@ const WebsiteCard = ({ website }: { website: Website }) => {
 
 export default function WebsiteGrid() {
   return (
-    <div className="w-full grid gap-x-4 gap-y-6 md:grid-cols-2 lg:grid-cols-3 mt-12 animate-fade-up">
+    <div className="w-full grid gap-3 md:grid-cols-2 lg:grid-cols-3 mt-12 animate-fade-up">
       {websitesData.map((website) => (
         <WebsiteCard key={website.slug} website={website} />
       ))}

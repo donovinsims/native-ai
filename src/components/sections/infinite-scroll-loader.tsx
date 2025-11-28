@@ -1376,7 +1376,7 @@ export default function InfiniteScrollLoader({ initialItems }: { initialItems: W
   }, [loadMoreItems]);
 
   return (
-      <div className="w-full grid gap-2 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mt-8 md:mt-12 animate-fade-up">
+      <div className="w-full grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mt-8 md:mt-12 animate-fade-up">
         {items.map((item) => (
           <WebsiteCard 
             key={item.id} 
