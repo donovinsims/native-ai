@@ -92,7 +92,7 @@ export default function HomePage() {
         <SidebarNavigation onSubmitClick={submitModal.open} />
         
         <main className="flex-1 sm:ml-[250px]">
-          <div className="container mx-auto px-3 sm:px-8 py-4 sm:py-8 max-w-[1400px]">
+          <div className="mx-auto px-3 sm:px-5 py-4 sm:py-8">
             <HeroHeader onSubscribeClick={subscribeModal.open} />
             
             <InfiniteScrollLoader initialItems={websitesData} />
