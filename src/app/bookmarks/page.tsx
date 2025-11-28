@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useSession, authClient } from "@/lib/auth-client";
-import { sampleApps, AppData, getPlatformLabel } from "@/lib/data/app-schema";
 import { Loader2, Bookmark, LogOut, ArrowLeft, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import type { App } from "@/lib/db/queries";
 
 const MagicIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -25,7 +25,8 @@ const MagicIcon = (props: React.SVGProps<SVGSVGElement>) => (
 interface BookmarkItem {
   id: number;
   userId: string;
-  appId: string;
+  contentId: string;
+  contentType: string;
   createdAt: string;
 }
 
@@ -33,6 +34,7 @@ export default function BookmarksPage() {
   const router = useRouter();
   const { data: session, isPending, refetch } = useSession();
   const [bookmarks, setBookmarks] = useState<BookmarkItem[]>([]);
+  const [apps, setApps] = useState<Map<string, App>>(new Map());
   const [isLoadingBookmarks, setIsLoadingBookmarks] = useState(true);
   const [removingId, setRemovingId] = useState<string | null>(null);
 
@@ -42,6 +44,19 @@ export default function BookmarksPage() {
       router.push("/login?redirect=/bookmarks");
     }
   }, [session, isPending, router]);
+
+  // Fetch app details for bookmarked apps
+  const fetchAppDetails = useCallback(async (slug: string): Promise<App | null> => {
+    try {
+      const response = await fetch(`/api/apps/${slug}`);
+      if (response.ok) {
+        return await response.json();
+      }
+    } catch (error) {
+      console.error("Failed to fetch app:", slug, error);
+    }
+    return null;
+  }, []);
 
   // Fetch bookmarks
   useEffect(() => {
@@ -58,7 +73,23 @@ export default function BookmarksPage() {
 
         if (response.ok) {
           const data = await response.json();
-          setBookmarks(Array.isArray(data) ? data : []);
+          const bookmarkList = Array.isArray(data) ? data : [];
+          setBookmarks(bookmarkList);
+          
+          // Fetch app details for each bookmark
+          const appPromises = bookmarkList
+            .filter((b: BookmarkItem) => b.contentType === "app")
+            .map(async (b: BookmarkItem) => {
+              const app = await fetchAppDetails(b.contentId);
+              return { id: b.contentId, app };
+            });
+          
+          const appResults = await Promise.all(appPromises);
+          const appMap = new Map<string, App>();
+          appResults.forEach(({ id, app }) => {
+            if (app) appMap.set(id, app);
+          });
+          setApps(appMap);
         }
       } catch (error) {
         console.error("Failed to fetch bookmarks:", error);
@@ -70,7 +101,7 @@ export default function BookmarksPage() {
     if (session?.user) {
       fetchBookmarks();
     }
-  }, [session]);
+  }, [session, fetchAppDetails]);
 
   const handleSignOut = async () => {
     const token = localStorage.getItem("bearer_token");
@@ -91,11 +122,11 @@ export default function BookmarksPage() {
     }
   };
 
-  const handleRemoveBookmark = async (appId: string) => {
-    setRemovingId(appId);
+  const handleRemoveBookmark = async (contentId: string) => {
+    setRemovingId(contentId);
     try {
       const token = localStorage.getItem("bearer_token");
-      const response = await fetch(`/api/bookmarks/${appId}`, {
+      const response = await fetch(`/api/bookmarks/${contentId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -103,7 +134,7 @@ export default function BookmarksPage() {
       });
 
       if (response.ok) {
-        setBookmarks((prev) => prev.filter((b) => b.appId !== appId));
+        setBookmarks((prev) => prev.filter((b) => b.contentId !== contentId));
         toast.success("Bookmark removed");
       } else {
         toast.error("Failed to remove bookmark");
@@ -113,11 +144,6 @@ export default function BookmarksPage() {
     } finally {
       setRemovingId(null);
     }
-  };
-
-  // Get app data for bookmarked apps
-  const getAppData = (appId: string): AppData | undefined => {
-    return sampleApps.find((app) => app.id === appId || app.slug === appId);
   };
 
   if (isPending) {
@@ -131,6 +157,8 @@ export default function BookmarksPage() {
   if (!session?.user) {
     return null;
   }
+
+  const appBookmarks = bookmarks.filter(b => b.contentType === "app");
 
   return (
     <div className="min-h-screen bg-white">
@@ -182,7 +210,7 @@ export default function BookmarksPage() {
                 My Bookmarks
               </h1>
               <p className="text-gray-500">
-                {bookmarks.length} saved app{bookmarks.length !== 1 ? "s" : ""}
+                {appBookmarks.length} saved app{appBookmarks.length !== 1 ? "s" : ""}
               </p>
             </div>
           </div>
@@ -191,7 +219,7 @@ export default function BookmarksPage() {
             <div className="flex items-center justify-center py-20">
               <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
             </div>
-          ) : bookmarks.length === 0 ? (
+          ) : appBookmarks.length === 0 ? (
             <div className="text-center py-20">
               <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <Bookmark className="w-8 h-8 text-gray-400" />
@@ -203,7 +231,7 @@ export default function BookmarksPage() {
                 Start exploring and bookmark apps you love
               </p>
               <Link
-                href="/"
+                href="/apps"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
               >
                 Browse apps
@@ -211,9 +239,12 @@ export default function BookmarksPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {bookmarks.map((bookmark) => {
-                const app = getAppData(bookmark.appId);
+              {appBookmarks.map((bookmark) => {
+                const app = apps.get(bookmark.contentId);
                 if (!app) return null;
+
+                const screenshots = app.screenshotUrls as string[] | null;
+                const heroImage = screenshots?.[0] || app.iconUrl;
 
                 return (
                   <div
@@ -221,38 +252,21 @@ export default function BookmarksPage() {
                     className="group relative p-4 rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors"
                   >
                     <Link href={`/apps/${app.slug}`} className="block">
-                      {/* Video/Image Preview */}
+                      {/* Image Preview */}
                       <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100 border border-gray-200 mb-3">
-                        {app.media.video ? (
-                          <video
-                            className="w-full h-full object-cover"
-                            muted
-                            playsInline
-                            poster={app.media.heroImage}
-                            onMouseEnter={(e) => e.currentTarget.play()}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.pause();
-                              e.currentTarget.currentTime = 0;
-                            }}
-                          >
-                            <source src={app.media.video.webm} type="video/webm" />
-                            <source src={app.media.video.mp4} type="video/mp4" />
-                          </video>
-                        ) : (
-                          <Image
-                            src={app.media.heroImage}
-                            alt={app.name}
-                            fill
-                            className="object-cover"
-                          />
-                        )}
+                        <Image
+                          src={heroImage}
+                          alt={app.name}
+                          fill
+                          className="object-cover"
+                        />
                       </div>
 
                       {/* App Info */}
                       <div className="flex items-start gap-3">
                         <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-gray-100 border border-gray-200 flex-shrink-0">
                           <Image
-                            src={app.media.icon}
+                            src={app.iconUrl}
                             alt={`${app.name} icon`}
                             fill
                             className="object-cover"
@@ -262,16 +276,14 @@ export default function BookmarksPage() {
                           <h3 className="text-sm font-medium text-gray-900 truncate">
                             {app.name}
                           </h3>
-                          <p className="text-xs text-gray-500 truncate">{app.tagline}</p>
+                          <p className="text-xs text-gray-500 truncate">{app.developer}</p>
                           <div className="flex items-center gap-1 mt-1">
-                            {app.platforms.slice(0, 3).map((platform) => (
-                              <span
-                                key={platform}
-                                className="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded"
-                              >
-                                {getPlatformLabel(platform)}
-                              </span>
-                            ))}
+                            <span className="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
+                              {app.platform}
+                            </span>
+                            <span className="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
+                              {app.category}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -279,12 +291,12 @@ export default function BookmarksPage() {
 
                     {/* Remove button */}
                     <button
-                      onClick={() => handleRemoveBookmark(bookmark.appId)}
-                      disabled={removingId === bookmark.appId}
+                      onClick={() => handleRemoveBookmark(bookmark.contentId)}
+                      disabled={removingId === bookmark.contentId}
                       className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-white border border-gray-200 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-all disabled:opacity-50"
                       aria-label="Remove bookmark"
                     >
-                      {removingId === bookmark.appId ? (
+                      {removingId === bookmark.contentId ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
                         <Trash2 className="w-4 h-4" />
