@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ExternalLink, Share2, Bookmark, ChevronRight, Home } from "lucide-react";
 import HeaderNavigation from "@/components/sections/header-navigation";
 import SidebarNavigation from "@/components/sections/sidebar-navigation";
@@ -10,6 +11,7 @@ import { useModal } from "@/hooks/useModal";
 import { SubscribeModal } from "@/components/modals/SubscribeModal";
 import { SubmitAppModal } from "@/components/modals/SubmitAppModal";
 import { toast } from "sonner";
+import { useSession } from "@/lib/auth-client";
 import type { App } from "@/lib/db/queries";
 
 interface AppDetailContentProps {
@@ -34,6 +36,8 @@ function getPricingDisplay(isPaid: boolean, price: string | null, pricingModel?:
 export function AppDetailContent({ app, relatedApps }: AppDetailContentProps) {
   const subscribeModal = useModal();
   const submitModal = useModal();
+  const router = useRouter();
+  const { data: session, isPending } = useSession();
 
   const screenshots = (app.screenshotUrls as string[]) || [];
   const heroImage = screenshots.length > 0 ? screenshots[0] : app.iconUrl;
@@ -63,6 +67,11 @@ export function AppDetailContent({ app, relatedApps }: AppDetailContentProps) {
   };
 
   const handleBookmark = () => {
+    if (!session?.user) {
+      toast.error("Please sign in to bookmark apps");
+      router.push(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
     toast.success("Bookmarked!");
   };
 
