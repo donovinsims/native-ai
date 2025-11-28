@@ -19,11 +19,13 @@ export function RelatedApps({ apps, currentAppId }: RelatedAppsProps) {
   }
 
   return (
-    <div className="mt-12 pt-8">
-      <h2 className="text-2xl font-semibold text-gray-900 mb-6">Related Apps</h2>
+    <div className="mt-16 pt-8">
+      <h2 className="text-2xl font-semibold text-gray-900 mb-8">Related Apps</h2>
       
-      {/* Grid matching home page style: 3 cols desktop, 2 tablet, 1 mobile */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-6">
+      {/* Grid: 3 cols desktop (>1200px), 2 tablet, 1 mobile - with wider max-width and generous gaps */}
+      <div 
+        className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8 xl:gap-10 w-full max-w-[1360px] mx-auto"
+      >
         {relatedApps.map((app) => (
           <RelatedAppCard key={app.id} app={app} />
         ))}
@@ -75,12 +77,12 @@ function RelatedAppCard({ app }: { app: AppData }) {
     <Link
       ref={containerRef}
       href={`/apps/${app.slug}`}
-      className="group block p-3 transition-all rounded-xl cursor-pointer hover:bg-gray-50 ease-in-out"
+      className="group block bg-white border border-gray-200 rounded-2xl overflow-hidden transition-all duration-200 ease-in-out hover:shadow-lg hover:-translate-y-0.5"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Video thumbnail - aspect-video like home page */}
-      <div className="relative overflow-hidden rounded-lg border border-gray-200 select-none aspect-video bg-gray-100 mb-3">
+      {/* Tall thumbnail - 350px desktop, 300px tablet, 280px mobile */}
+      <div className="relative overflow-hidden rounded-t-2xl select-none h-[280px] md:h-[300px] xl:h-[350px] bg-gray-100">
         <div
           role="overlay"
           className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-all ease-in-out z-20"
@@ -118,25 +120,40 @@ function RelatedAppCard({ app }: { app: AppData }) {
         )}
       </div>
 
-      {/* Card info - matching home page style */}
-      <div className="flex items-start gap-2">
-        <div className="w-5 h-5 rounded-sm overflow-hidden flex-shrink-0 bg-gray-100">
+      {/* Content area with overlapping icon */}
+      <div className="relative px-6 pb-6 pt-10">
+        {/* Overlapping app icon */}
+        <div className="absolute -top-8 left-6 w-16 h-16 rounded-[14px] overflow-hidden bg-white border-4 border-white shadow-md">
           <Image
             src={app.media.icon}
             alt={`${app.name} icon`}
-            width={20}
-            height={20}
+            width={64}
+            height={64}
             className="w-full h-full object-cover"
           />
         </div>
-        <div className="min-w-0 flex-1">
-          <h3 className="text-sm font-medium text-gray-900 truncate group-hover:text-gray-700 transition-colors">
-            {app.name}
-          </h3>
-          <p className="text-xs text-gray-500 truncate">
-            {app.tagline}
-          </p>
-        </div>
+
+        {/* App info */}
+        <h3 className="text-xl font-semibold text-gray-900 mb-2 leading-tight group-hover:text-gray-700 transition-colors">
+          {app.name}
+        </h3>
+        <p className="text-[15px] text-gray-500 leading-relaxed line-clamp-2 mb-4">
+          {app.tagline}
+        </p>
+
+        {/* Platform badges */}
+        {app.platforms && app.platforms.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {app.platforms.map((platform) => (
+              <span
+                key={platform}
+                className="text-[13px] bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg"
+              >
+                {platform}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </Link>
   );
