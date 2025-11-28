@@ -17,17 +17,21 @@ export function RelatedApps({ apps, currentAppId }: RelatedAppsProps) {
   }
 
   return (
-    <div className="mt-12 pt-8 border-t border-gray-200">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Related Apps</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+    <div className="mt-[60px] pt-8">
+      <h2 className="text-2xl font-semibold text-gray-900 mb-8">Related Apps</h2>
+      
+      {/* Desktop: 3 cards per row with fixed width */}
+      {/* Tablet: 2 cards per row */}
+      {/* Mobile: Horizontal scrolling carousel */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 lg:gap-6 w-full max-w-[1200px]">
         {relatedApps.map((app) => (
           <Link
             key={app.id}
             href={`/apps/${app.slug}`}
-            className="group rounded-xl hover:bg-gray-50 transition-all duration-200"
+            className="group bg-white border border-gray-200 rounded-xl hover:shadow-xl hover:-translate-y-1 transition-all duration-200"
           >
-            {/* Video/Image Preview - Larger */}
-            <div className="relative aspect-video rounded-t-xl overflow-hidden bg-gray-100 border border-gray-200 mb-3" style={{ minHeight: "180px" }}>
+            {/* Large Thumbnail/Preview - Full Width */}
+            <div className="relative w-full h-[200px] md:h-[220px] lg:h-[240px] rounded-t-xl overflow-hidden bg-gray-100">
               {app.media.video ? (
                 <video
                   className="w-full h-full object-cover"
@@ -52,12 +56,13 @@ export function RelatedApps({ apps, currentAppId }: RelatedAppsProps) {
                 />
               )}
               {/* Overlay on hover */}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-            </div>
-
-            {/* App Info - Larger */}
-            <div className="flex items-start gap-3 px-3 pb-4">
-              <div className="relative rounded-xl overflow-hidden bg-gray-100 border border-gray-200 flex-shrink-0" style={{ width: "48px", height: "48px" }}>
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200" />
+              
+              {/* Overlapping Icon - 56px with white border */}
+              <div 
+                className="absolute -bottom-7 left-5 w-14 h-14 rounded-xl overflow-hidden bg-white border-3 border-white shadow-lg z-10"
+                style={{ border: "3px solid white" }}
+              >
                 <Image
                   src={app.media.icon}
                   alt={`${app.name} icon`}
@@ -65,26 +70,32 @@ export function RelatedApps({ apps, currentAppId }: RelatedAppsProps) {
                   className="object-cover"
                 />
               </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-lg font-semibold text-gray-900 line-clamp-1 group-hover:text-gray-700 transition-colors mb-1">
-                  {app.name}
-                </h3>
-                <p className="text-sm text-[#6b7280] line-clamp-2 mb-2">{app.tagline}</p>
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  {app.platforms.slice(0, 3).map((platform) => (
-                    <span
-                      key={platform}
-                      className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded"
-                    >
-                      {getPlatformLabel(platform)}
-                    </span>
-                  ))}
-                  {app.platforms.length > 3 && (
-                    <span className="text-xs text-gray-400">
-                      +{app.platforms.length - 3}
-                    </span>
-                  )}
-                </div>
+            </div>
+
+            {/* Card Content with extra top padding for overlapping icon */}
+            <div className="pt-10 px-5 pb-5 rounded-b-xl">
+              <h3 className="text-lg font-semibold text-[#1a1a1a] mb-2 line-clamp-1 group-hover:text-gray-700 transition-colors">
+                {app.name}
+              </h3>
+              <p className="text-sm text-[#6b7280] leading-[1.5] line-clamp-2 mb-3">
+                {app.tagline}
+              </p>
+              
+              {/* Platform Badges */}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {app.platforms.slice(0, 3).map((platform) => (
+                  <span
+                    key={platform}
+                    className="text-xs text-gray-600 bg-[#f3f4f6] px-2.5 py-1 rounded-md"
+                  >
+                    {getPlatformLabel(platform)}
+                  </span>
+                ))}
+                {app.platforms.length > 3 && (
+                  <span className="text-xs text-gray-400">
+                    +{app.platforms.length - 3}
+                  </span>
+                )}
               </div>
             </div>
           </Link>
