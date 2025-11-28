@@ -9,7 +9,7 @@ interface HeroHeaderProps {
 const HeroHeader = ({ onSubscribeClick }: HeroHeaderProps) => {
   return (
     <section className="py-3 md:py-8">
-      <h1 className="text-[2rem] md:text-4xl font-semibold leading-9 md:leading-10 tracking-tight text-black">
+      <h1 className="md:text-4xl leading-9 md:leading-10 tracking-tight text-black !font-(family-name:--font-manrope) !text-[40px] !font-extrabold">
         The best web design inspiration
       </h1>
       <h3 className="mt-2 text-base md:text-xl font-normal leading-6 md:leading-8 text-gray-500">
