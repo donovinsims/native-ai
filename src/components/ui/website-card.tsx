@@ -69,7 +69,7 @@ export default function WebsiteCard({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="relative overflow-hidden rounded-lg border border-gray-200 select-none aspect-video bg-gray-100 mb-3">
+      <div className="relative overflow-hidden rounded-lg border border-gray-200 select-none aspect-[21/9] bg-gray-100 mb-3">
         <div
           role="overlay"
           className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-all ease-in-out z-20"
