@@ -147,12 +147,6 @@ export function MobileNavOverlay({
 
             {/* Action buttons */}
             <div className="flex flex-col gap-3 mb-4">
-              <button
-                onClick={handleSubmitClick}
-                className="w-full min-h-[44px] px-4 py-3 rounded-lg border border-gray-300 text-base font-medium text-gray-900 bg-white hover:bg-gray-50 transition-colors"
-              >
-                Submit
-              </button>
               {!isPending && !session?.user && (
                 <Link
                   href="/login"
@@ -217,6 +211,14 @@ export function MobileNavOverlay({
               <span className="text-base text-gray-900">Sponsor us</span>
               <ArrowUpRight className="w-5 h-5 text-gray-400" />
             </a>
+
+            {/* Submit button moved below Sponsor us - match desktop sidebar style */}
+            <button
+              onClick={handleSubmitClick}
+              className="w-full min-h-[40px] flex items-center justify-center px-6 py-2 bg-[#fafafa] text-black rounded-xl font-medium border border-[#d1d1d1] hover:bg-gray-50 transition-colors text-sm mb-2"
+            >
+              Submit
+            </button>
 
             {/* Contact email */}
             <a
