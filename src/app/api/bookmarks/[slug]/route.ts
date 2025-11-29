@@ -26,7 +26,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       .select()
       .from(bookmark)
       .where(
-        and(eq(bookmark.userId, session.user.id), eq(bookmark.appSlug, slug))
+        and(
+          eq(bookmark.userId, session.user.id),
+          eq(bookmark.contentId, slug),
+          eq(bookmark.contentType, "app")
+        )
       );
 
     return NextResponse.json({ isBookmarked: existing.length > 0 });
@@ -55,7 +59,11 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     await db
       .delete(bookmark)
       .where(
-        and(eq(bookmark.userId, session.user.id), eq(bookmark.appSlug, slug))
+        and(
+          eq(bookmark.userId, session.user.id),
+          eq(bookmark.contentId, slug),
+          eq(bookmark.contentType, "app")
+        )
       );
 
     return NextResponse.json({ success: true });

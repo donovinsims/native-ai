@@ -46,7 +46,7 @@ export function AppCard({ app }: AppCardProps) {
       <div className="mt-3">
         <h3 className="text-sm font-medium text-gray-900">{app.name}</h3>
         <p className="text-sm text-gray-400 mt-0.5 line-clamp-2">
-          {app.shortDescription || app.description}
+          {app.description}
         </p>
       </div>
     </Link>

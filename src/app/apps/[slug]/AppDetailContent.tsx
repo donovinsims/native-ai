@@ -129,7 +129,7 @@ export function AppDetailContent({ app, relatedApps }: AppDetailContentProps) {
             <div className="mt-6">
               <h1 className="text-2xl font-semibold text-gray-900">{app.name}</h1>
               <p className="text-base text-gray-400 mt-1">
-                {app.shortDescription || app.description?.slice(0, 100)}
+                {app.description?.slice(0, 100)}
               </p>
             </div>
 

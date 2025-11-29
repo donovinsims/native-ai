@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { bookmark } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { appSlug } = body;
+    const { appSlug, contentType = "app" } = body;
 
     if (!appSlug) {
       return NextResponse.json(
@@ -58,10 +58,15 @@ export async function POST(request: NextRequest) {
     const existing = await db
       .select()
       .from(bookmark)
-      .where(eq(bookmark.userId, session.user.id))
-      .then((rows) => rows.find((r) => r.appSlug === appSlug));
+      .where(
+        and(
+          eq(bookmark.userId, session.user.id),
+          eq(bookmark.contentId, appSlug),
+          eq(bookmark.contentType, contentType)
+        )
+      );
 
-    if (existing) {
+    if (existing.length > 0) {
       return NextResponse.json(
         { error: "Bookmark already exists" },
         { status: 409 }
@@ -72,7 +77,8 @@ export async function POST(request: NextRequest) {
       .insert(bookmark)
       .values({
         userId: session.user.id,
-        appSlug,
+        contentId: appSlug,
+        contentType: contentType,
       })
       .returning();
 

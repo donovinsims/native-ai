@@ -389,7 +389,7 @@ export const getWorkflows = cache(async (params?: GetWorkflowsParams): Promise<W
     let orderBy;
     switch (validatedSort) {
       case 'popular':
-        orderBy = desc(workflows.downloadsCount);
+        orderBy = desc(workflows.reviewsCount);
         break;
       case 'top-rated':
         orderBy = desc(workflows.rating);
@@ -546,7 +546,7 @@ export const getShortcuts = cache(async (params?: GetShortcutsParams): Promise<S
     let orderBy;
     switch (validatedSort) {
       case 'popular':
-        orderBy = desc(shortcuts.downloadsCount);
+        orderBy = desc(shortcuts.reviewsCount);
         break;
       case 'top-rated':
         orderBy = desc(shortcuts.rating);
@@ -703,7 +703,7 @@ export const getMCPs = cache(async (params?: GetMCPsParams): Promise<MCP[]> => {
     let orderBy;
     switch (validatedSort) {
       case 'popular':
-        orderBy = desc(mcps.starsCount);
+        orderBy = desc(mcps.reviewsCount);
         break;
       case 'top-rated':
         orderBy = desc(mcps.rating);
@@ -847,7 +847,7 @@ export const getCreators = cache(async (params?: GetCreatorsParams): Promise<Cre
     let orderBy;
     switch (validatedSort) {
       case 'popular':
-        orderBy = desc(creators.followersCount);
+        orderBy = desc(creators.createdAt);
         break;
       case 'a-z':
         orderBy = asc(creators.name);
@@ -899,7 +899,7 @@ export const getFeaturedCreators = cache(async (limit: number = 6): Promise<Crea
       .select()
       .from(creators)
       .where(eq(creators.isFeatured, true))
-      .orderBy(desc(creators.followersCount))
+      .orderBy(desc(creators.createdAt))
       .limit(clampLimit(limit));
   } catch (error) {
     console.error('[getFeaturedCreators] Error fetching featured creators:', error);
@@ -913,6 +913,7 @@ export const getFeaturedCreators = cache(async (limit: number = 6): Promise<Crea
 
 /**
  * Get all content created by a specific creator
+ * Note: creatorId columns don't exist in current schema, returning empty arrays
  * 
  * @param creatorId - The creator's ID
  * @returns Object containing arrays of apps, workflows, shortcuts, and MCPs
@@ -923,49 +924,14 @@ export const getCreatorContent = cache(async (creatorId: number): Promise<{
   shortcuts: Shortcut[];
   mcps: MCP[];
 }> => {
-  try {
-    const [creatorApps, creatorWorkflows, creatorShortcuts, creatorMCPs] = await Promise.all([
-      db
-        .select()
-        .from(apps)
-        .where(eq(apps.creatorId, creatorId))
-        .orderBy(desc(apps.createdAt))
-        .limit(20),
-      db
-        .select()
-        .from(workflows)
-        .where(eq(workflows.creatorId, creatorId))
-        .orderBy(desc(workflows.createdAt))
-        .limit(20),
-      db
-        .select()
-        .from(shortcuts)
-        .where(eq(shortcuts.creatorId, creatorId))
-        .orderBy(desc(shortcuts.createdAt))
-        .limit(20),
-      db
-        .select()
-        .from(mcps)
-        .where(eq(mcps.creatorId, creatorId))
-        .orderBy(desc(mcps.createdAt))
-        .limit(20)
-    ]);
-
-    return {
-      apps: creatorApps,
-      workflows: creatorWorkflows,
-      shortcuts: creatorShortcuts,
-      mcps: creatorMCPs
-    };
-  } catch (error) {
-    console.error('[getCreatorContent] Error fetching creator content:', error, { creatorId });
-    return {
-      apps: [],
-      workflows: [],
-      shortcuts: [],
-      mcps: []
-    };
-  }
+  // creatorId columns don't exist in current schema
+  // Return empty arrays until schema is updated
+  return {
+    apps: [],
+    workflows: [],
+    shortcuts: [],
+    mcps: []
+  };
 });
 
 /**
@@ -1078,7 +1044,7 @@ export const globalSearch = cache(async (
             sql`LOWER(${creators.bio}) LIKE ${pattern}`
           )
         )
-        .orderBy(desc(creators.followersCount))
+        .orderBy(desc(creators.createdAt))
         .limit(resultLimit)
     ]);
 

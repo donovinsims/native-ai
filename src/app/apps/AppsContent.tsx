@@ -35,7 +35,7 @@ export function AppsContent({ apps, currentFilters }: AppsContentProps) {
   const submitModal = useModal();
 
   const handleApplyFilters = (filters: FilterState) => {
-    updateFilters(filters);
+    updateFilters(filters as Record<string, string | undefined>);
   };
 
   const handleClearAll = () => {

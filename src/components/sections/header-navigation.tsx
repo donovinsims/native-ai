@@ -64,7 +64,7 @@ const HeaderNavigation = ({ onSubscribeClick, onSubmitClick }: HeaderNavigationP
   };
 
   const handleApplyFilters = (filters: FilterState) => {
-    updateFilters(filters);
+    updateFilters(filters as Record<string, string | undefined>);
   };
 
   // Handle keyboard shortcut ⌘K
